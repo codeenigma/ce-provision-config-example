@@ -1,0 +1,8 @@
+---
+# Ensure gitlab runner working directory and user is correct for servers in the _controller group
+# Requires AWS controller servers to be tagged
+#   Profile: controller
+
+gitlab_runner:
+  username: "{{ ce_provision.username }}"
+  runner_workingdir: "/home/{{ ce_provision.username }}/build"

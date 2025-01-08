@@ -1,0 +1,56 @@
+---
+# Default config for a standalone load balancer in AWS EC2
+# Do change the Route 53 zone name, currently acme.com
+aws_elb:
+  elb_type: "alb"
+  name: "{{ _infra_name }}-{{ _env_type }}-alb"
+  tags: "{{ _aws_tags }}"
+  vpc_name: "{{ _infra_name }}"
+  subnets: # A list of public subnet names.
+    - "{{ _infra_name }}-{{ _env_type }}-a"
+    - "{{ _infra_name }}-{{ _env_type }}-b"
+    - "{{ _infra_name }}-{{ _env_type }}-c"
+  # Add an CNAM record tied to the ALB.
+  # Set the zone to empty to skip.
+  route_53:
+    zone: acme.com # Change me to your zone name or remove this block entirely
+    record: "{{ _domain_name }}"
+    aws_profile: "core"
+    wildcard: false
+  elb_security_groups:
+    - "web_open"
+  target_groups: # list of target groups
+    - name: "{{ _infra_name }}-{{ _env_type }}-target-group"
+      protocol: http
+      port: 80 # Port on the ELB itself.
+      # Target Group health checks
+      deregistration_delay_timeout: 60 # seconds to wait before removing instance from Target Group
+      health_check_protocol: "http"
+      health_check_path: "/"
+      health_check_port: "traffic-port" # Default is traffic-port, which matches the target port. Can be overridden with a port number.
+      health_check_success_codes: "200,301,302" # Can be single code, like "200", or a comma-separated value with ranges: "200,250-260".
+      health_check_interval: 30
+      health_check_timeout: 5
+      health_check_healthy_count: 5
+      health_check_unhealthy_count: 2
+      # Target group settings
+      targets: [] # List of servers using their Name tags. This value is used to obtain the instance ID.
+      # targets:
+      #   - example-server-one
+      #   - example-server-two
+      targets_port: 80 # Port to forward to on target servers.
+      modify_targets: false # Set to true if this is a standalone ELB, so the list of targets in the target group can be updated.
+  # ALB settings
+  idle_timeout: 60
+  ip_address_type: "ipv4" # Can be 'ipv4' or 'dualstack' (the latter includes IPv4 and IPv6 addresses).
+  ssl_certificate_ARN: ""
+  ssl_extra_certificate_ARNs: [] # Optional list of extra certificate ARNs to add to the ALB.
+  listeners_http:
+    default_target_group: "{{ _infra_name }}-{{ _env_type }}-target-group" # must match a name provided in target_groups
+    rules: []
+  listeners_https:
+    default_target_group: "{{ _infra_name }}-{{ _env_type }}-target-group" # must match a name provided in target_groups
+    rules: []
+  # Add custom listeners. See https://docs.ansible.com/ansible/latest/collections/community/aws/elb_application_lb_module.html
+  listeners: []
+  elb_ssl_policy: "ELBSecurityPolicy-TLS-1-2-2017-01" # Sets the ELB SSL policy to only accect TLSv1.2 and apply more secure ciphers.

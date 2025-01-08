@@ -1,0 +1,19 @@
+---
+# Default CloudWatch log groups for EC2 instances
+aws_cloudwatch_log_group:
+  aws_profile: "{{ _aws_profile }}"
+  region: "{{ _aws_region }}"
+  tags: "{{ _aws_tags }}"
+  state: present
+  # Number of days to keep logs, in days.
+  # Valid values are: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
+  retention: 365
+  # Group names to apply the policy to.
+  log_group_names:
+    - "{{ _env_type }}-alternatives"
+    - "{{ _env_type }}-auth"
+    - "{{ _env_type }}-daemon"
+    - "{{ _env_type }}-messages"
+    - "{{ _env_type }}-nginx-access"
+    - "{{ _env_type }}-nginx-error"
+    - "{{ _env_type }}-syslog"

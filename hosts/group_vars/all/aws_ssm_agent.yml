@@ -1,0 +1,4 @@
+---
+# AWS SSM agent configuration for web-based terminal access
+aws_ssm_agent:
+  region: "{{ _aws_region }}"

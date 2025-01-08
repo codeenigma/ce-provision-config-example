@@ -1,0 +1,13 @@
+---
+# Default role for EC2 instances
+aws_iam_role:
+  aws_profile: "{{ _aws_profile }}"
+  region: "{{ _aws_region }}"
+  state: present
+  tags: "{{ _aws_tags }}"
+  name: "{{ _infra_name }}-{{ _env_type }}-ec2-basic"
+  managed_policies:
+    - "CloudWatchAgentServerPolicy"
+    - "AmazonSSMManagedInstanceCore"
+    - "AmazonEC2ReadOnlyAccess"
+  policy_document: ec2

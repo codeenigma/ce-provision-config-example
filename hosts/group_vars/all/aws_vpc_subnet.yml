@@ -1,0 +1,23 @@
+---
+# Default VPC subnet config
+# Note, NAT gateways are expensive, make sure nat_ipv4 is false if you don't need them
+# You can reduce cost by not using all the Availability Zones, you need a minimum of two for resilient services
+aws_vpc_subnet:
+  vpc_name: "{{ _infra_name }}"
+  aws_profile: "{{ _aws_profile }}"
+  region: "{{ _aws_region }}"
+  state: present
+  tags: "{{ _aws_tags }}"
+  subnets:
+    - az: a
+      cidr_block: "{{ _aws_vpc_subnets_cidr_base }}.0/26"
+      name: "{{ _infra_name }}-{{ _env_type }}-a"
+      nat_ipv4: "{% if _env_type == 'util' %}false{% else %}true{% endif %}"
+    - az: b
+      cidr_block: "{{ _aws_vpc_subnets_cidr_base }}.64/26"
+      name: "{{ _infra_name }}-{{ _env_type }}-b"
+      nat_ipv4: "{% if _env_type == 'util' %}false{% else %}true{% endif %}"
+    - az: c
+      cidr_block: "{{ _aws_vpc_subnets_cidr_base }}.128/26"
+      name: "{{ _infra_name }}-{{ _env_type }}-c"
+      nat_ipv4: "{% if _env_type == 'util' %}false{% else %}true{% endif %}"

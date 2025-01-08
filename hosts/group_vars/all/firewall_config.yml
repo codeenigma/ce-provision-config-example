@@ -1,0 +1,44 @@
+---
+firewall_config:
+  rulesets:
+    - common_web
+    - ssh_open
+    - common_network # rule always needs to be last so the DROP rules in the OUTPUT chain get applied at the end
+
+  # If you have a VPN or a jump box, you might want to restrict SSH to that address
+  # Be sure to change X.X.X.X for the IP address requiring SSH access - you can of course add as many as you like
+  ssh_restricted:
+    firewall_additional_rules:
+      - "iptables -A INPUT -p tcp --dport 22 -s X.X.X.X -j ACCEPT" # Only allow this IP over SSH
+
+  # If you operate a Prometheus server, this rule can be applied to clients to allow it to scrape them
+  # Be sure to change X.X.X.X for the IP address of your Prometheus server
+  # See also the prometheus_server_scraping rule in ce-provision defaults for outbound traffic from a Prometheus server
+  prometheus_server:
+    firewall_additional_rules:
+      - "iptables -A INPUT -p tcp --dport 9115 -s X.X.X.X -j ACCEPT" # blackbox exporter exporter
+      - "iptables -A INPUT -p tcp --dport 9101 -s X.X.X.X -j ACCEPT" # process exporter
+      - "iptables -A INPUT -p tcp --dport 9100 -s X.X.X.X -j ACCEPT" # node exporter
+      - "iptables -A INPUT -p tcp --dport 9090 -s X.X.X.X -j ACCEPT" # prometheus
+      - "iptables -A INPUT -p tcp --dport 9093 -s X.X.X.X -j ACCEPT" # alertmanager
+      - "iptables -A INPUT -p tcp --dport 3000 -s X.X.X.X -j ACCEPT" # grafana
+  # If you operate a Wazuh instance, this rule can be applied to clients to allow the agents to call in
+  # Be sure to change X.X.X.X for the IP address of your Wazuh server
+  wazuh_outbound:
+    firewall_additional_rules:
+      - "iptables -A OUTPUT -p tcp -d X.X.X.X --dport 1514 -j ACCEPT" # wazuh agent on monitor1
+      - "iptables -A OUTPUT -p tcp -d X.X.X.X --dport 1515 -j ACCEPT" # wazuh agent on monitor1
+      - "iptables -A OUTPUT -p tcp -d X.X.X.X --dport 55000 -j ACCEPT" # wazuh agent on monitor1
+
+  # AWS rules
+  # _aws_vpc_cidr_base will be set to whatever the CIDR base of your VPC is
+  # These rules allow all internal traffic outbound from web servers to key services
+  elasticache_memcached:
+    firewall_additional_rules:
+      - "iptables -A OUTPUT -p tcp --dport 11211 -d {{ _aws_vpc_cidr_base }}.0.0/16 -j ACCEPT" # allow outbound internal traffic to memcached
+  elasticache_redis:
+    firewall_additional_rules:
+      - "iptables -A OUTPUT -p tcp --dport 6379 -d {{ _aws_vpc_cidr_base }}.0.0/16 -j ACCEPT" # allow outbound internal traffic to redis
+  rds_mysql:
+    firewall_additional_rules:
+      - "iptables -A OUTPUT -p tcp --dport 3306 -d {{ _aws_vpc_cidr_base }}.0.0/16 -j ACCEPT" # allow outbound internal traffic to mysql on RDS

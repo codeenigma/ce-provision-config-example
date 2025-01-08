@@ -1,0 +1,9 @@
+---
+# Tag values are typically passed in via playbook vars or CLI because they change with every playbook
+_aws_tags:
+  Name: "{{ _aws_resource_name | default(omit) }}"
+  Profile: "{{ _profile | default(omit) }}"
+  Env: "{{ _env_type | default(omit) }}"
+  Billing: "{{ _aws_billing_type | default(omit) }}"
+  Infra: "{{ _infra_name | default(omit) }}"
+  Ansible: managed

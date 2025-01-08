@@ -1,0 +1,75 @@
+---
+# Our standard AWS Backup settings
+# Note, we default to eu-central-1 for off site backups - you may change this to any other valid AWS region
+# Do change the notification email address to get alerts!
+aws_backup:
+  vault:
+    name: "{{ _infra_name }}" # Set the vault name; if anything but 'default', a vault will be created with the name specified and the encryption key below.
+    encryption_key: "Default" # An Amazon Resource Name (ARN) that identifies the encryption key to use in the copy region. If 'default', the default AWS encryption key will be used. If NOT 'default', the key must already exist so the ARN can be passed in.
+  copy_vault:
+    name: "{{ _infra_name }}-offsite"
+    encryption_key: "Default" # An Amazon Resource Name (ARN) that identifies the encryption key to use in the copy region. If 'default', the default AWS encryption key will be used. If NOT 'default', the key must already exist so the ARN can be passed in.
+    region: "eu-central-1"
+  plans:
+    - name: "{{ _infra_name }}-dev"
+      rules:
+        - rule_name: "DailyBackups"
+          schedule: '0 1 ? * * *' # A CRON expression in UTC specifying when the job is initiated. ? is in the 'Day of month' position as * cannot be used and it appears Backup uses the year field.
+          start_window_cancel: 60 # A value in minutes after a backup is scheduled before a job will be cancelled if it doesn't start successfully.
+          completion_window_cancel: 360 # A value in minutes after a backup job is successfully started before it must be completed or it will be canceled by Backup.
+          lifecycle: # The lifecycle defines when a protected resource is transitioned to cold storage and when it expires.
+            move_to_cold_storage_after_days: 0 # Specifies the number of days after creation that a recovery point is moved to cold storage.
+            delete_after_days: 35 # Specifies the number of days after creation that a recovery point is deleted.
+          copy_actions:
+            offsite: false # If you want to copy the backups from this plan to another region, set to true.
+            lifecycle: # The lifecycle defines when a protected resource is transitioned to cold storage and when it expires.
+              move_to_cold_storage_after_days: 0 # Specifies the number of days after creation that a recovery point is moved to cold storage.
+              delete_after_days: 0 # Specifies the number of days after creation that a recovery point is deleted.
+          continuous_backup: false # Specifies whether Backup creates continuous backups.
+    - name: "{{ _infra_name }}-prod"
+      rules:
+        - rule_name: "DailyBackups"
+          schedule: '0 2 ? * * *' # A CRON expression in UTC specifying when the job is initiated. ? is in the 'Day of month' position as * cannot be used and it appears Backup uses the year field.
+          start_window_cancel: 60 # A value in minutes after a backup is scheduled before a job will be cancelled if it doesn't start successfully.
+          completion_window_cancel: 360 # A value in minutes after a backup job is successfully started before it must be completed or it will be canceled by Backup.
+          lifecycle: # The lifecycle defines when a protected resource is transitioned to cold storage and when it expires.
+            move_to_cold_storage_after_days: 0 # Specifies the number of days after creation that a recovery point is moved to cold storage.
+            delete_after_days: 35 # Specifies the number of days after creation that a recovery point is deleted.
+          copy_actions:
+            offsite: true # If you want to copy the backups from this plan to another region, set to true.
+            lifecycle: # The lifecycle defines when a protected resource is transitioned to cold storage and when it expires.
+              move_to_cold_storage_after_days: 35 # Specifies the number of days after creation that a recovery point is moved to cold storage.
+              delete_after_days: 365 # Specifies the number of days after creation that a recovery point is deleted.
+          continuous_backup: false # Specifies whether Backup creates continuous backups.
+    - name: "{{ _infra_name }}-util"
+      rules:
+        - rule_name: "DailyBackups"
+          schedule: '0 0 ? * * *' # A CRON expression in UTC specifying when the job is initiated. ? is in the 'Day of month' position as * cannot be used and it appears Backup uses the year field.
+          start_window_cancel: 60 # A value in minutes after a backup is scheduled before a job will be cancelled if it doesn't start successfully.
+          completion_window_cancel: 360 # A value in minutes after a backup job is successfully started before it must be completed or it will be canceled by Backup.
+          lifecycle: # The lifecycle defines when a protected resource is transitioned to cold storage and when it expires.
+            move_to_cold_storage_after_days: 0 # Specifies the number of days after creation that a recovery point is moved to cold storage.
+            delete_after_days: 35 # Specifies the number of days after creation that a recovery point is deleted.
+          copy_actions:
+            offsite: true # If you want to copy the backups from this plan to another region, set to true.
+            lifecycle: # The lifecycle defines when a protected resource is transitioned to cold storage and when it expires.
+              move_to_cold_storage_after_days: 35 # Specifies the number of days after creation that a recovery point is moved to cold storage.
+              delete_after_days: 365 # Specifies the number of days after creation that a recovery point is deleted.
+          continuous_backup: false # Specifies whether Backup creates continuous backups.
+  backup:
+    iam_role_arn: "Default"
+  sns:
+    sns: true
+    name: "Notify-Email"
+    display_name: "" # Display name for the topic, for when the topic is owned by this AWS account.
+    delivery_policy_default_healthy_retry_policy_min_delay_target: 20
+    delivery_policy_default_healthy_retry_policy_max_delay_target: 20
+    delivery_policy_default_healthy_retry_policy_num_retries: 3
+    delivery_policy_default_healthy_retry_policy_num_max_delay_retries: 0
+    delivery_policy_default_healthy_retry_policy_num_no_delay_retries: 0
+    delivery_policy_default_healthy_retry_policy_num_min_delay_retries: 0
+    delivery_policy_default_healthy_retry_policy_backoff_function: "linear"
+    delivery_policy_disable_subscription_overrides: false
+    subscriptions:
+      - endpoint: "sysadm+{{ _infra_name }}@example.com"
+        protocol: "email"

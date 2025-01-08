@@ -1,0 +1,6 @@
+---
+# Default settings for Cloudwatch
+aws_cloudwatch_agent:
+  log_stream_name: "{{ _aws_resource_name }} {instance_id}"
+  metrics_namespace: "{{ _aws_resource_name }}"
+  log_group_prefix: "{{ _env_type }}-"

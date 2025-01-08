@@ -1,0 +1,125 @@
+---
+# Default AWS EC2 autoscaling group configuration
+# Do change the notification email address to get alerts!
+# Also change the Route 53 zone name, currently acme.com
+aws_ec2_autoscale_cluster:
+  min_size: 1
+  max_size: 2
+  root_volume_size: 20
+  ssl_certificate_ARN: ""
+  instance_type: "{{ _instance_type }}"
+  cluster_security_groups:
+    - ssh_deploy
+    - common_network
+    - wazuh_outbound
+  alb_security_groups:
+    - "web_open"
+  rds:
+    rds: true
+    db_instance_class: db.t3.small
+    allocated_storage: 100
+    multi_az: false
+    master_username: "{{ _rds_creds.master_username }}"
+    master_user_password: "{{ _rds_creds.master_user_password }}"
+    storage_encrypted: true
+    rds_cloudwatch_alarms:
+      - name: "{{ _infra_name }}_free_storage_space_threshold_{{ _env_type }}_asg"
+        description: "Average database free storage space over the last 10 minutes too low."
+        metric: "FreeStorageSpace"
+        namespace: "AWS/RDS"
+        statistic: "Average"
+        threshold: 20000000000
+        unit: "Bytes"
+        comparison: "LessThanOrEqualToThreshold"
+        period: 600
+        evaluation_periods: 1
+      - name: "{{ _infra_name }}_cpu_utilization_too_high_{{ _env_type }}_asg"
+        description: "Average database CPU utilization over last 10 minutes too high."
+        metric: "CPUUtilization"
+        namespace: "AWS/RDS"
+        statistic: "Average"
+        threshold: 80
+        unit: "Percent"
+        comparison: "GreaterThanOrEqualToThreshold"
+        period: 600
+        evaluation_periods: 1
+      - name: "{{ _infra_name }}_freeable_memory_too_low_{{ _env_type }}_asg"
+        description: "Average database freeable memory over last 10 minutes too low, performance may suffer."
+        metric: "FreeableMemory"
+        namespace: "AWS/RDS"
+        statistic: "Average"
+        threshold: 100000000
+        unit: "Bytes"
+        comparison: "LessThanThreshold"
+        period: 600
+        evaluation_periods: 1
+      - name: "{{ _infra_name }}_disk_queue_depth_too_high_{{ _env_type }}_asg"
+        description: "Average database disk queue depth over last 10 minutes too high, performance may suffer."
+        metric: "DiskQueueDepth"
+        namespace: "AWS/RDS"
+        statistic: "Average"
+        threshold: 64
+        unit: "Count"
+        comparison: "GreaterThanThreshold"
+        period: 600
+        evaluation_periods: 1
+      - name: "{{ _infra_name }}_swap_usage_too_high_{{ _env_type }}_asg"
+        description: "Average database swap usage over last 10 minutes too high, performance may suffer."
+        metric: "SwapUsage"
+        namespace: "AWS/RDS"
+        statistic: "Average"
+        threshold: 256000000
+        unit: "Bytes"
+        comparison: "GreaterThanThreshold"
+        period: 600
+        evaluation_periods: 1
+    sns:
+      sns: true
+      name: "Notify-Email"
+      display_name: "" # Display name for the topic, for when the topic is owned by this AWS account.
+      delivery_policy_default_healthy_retry_policy_min_delay_target: 20
+      delivery_policy_default_healthy_retry_policy_max_delay_target: 20
+      delivery_policy_default_healthy_retry_policy_num_retries: 3
+      delivery_policy_default_healthy_retry_policy_num_max_delay_retries: 0
+      delivery_policy_default_healthy_retry_policy_num_no_delay_retries: 0
+      delivery_policy_default_healthy_retry_policy_num_min_delay_retries: 0
+      delivery_policy_default_healthy_retry_policy_backoff_function: "linear"
+      delivery_policy_disable_subscription_overrides: false
+      subscriptions:
+        - endpoint: "sysadm+{{ _infra_name }}@example.com"
+          protocol: "email"
+    backup: "{{ _infra_name }}-{{ _env_type }}"
+  route_53:
+    zone: acme.com # Change me to your zone name or remove this block entirely
+    record: "{{ _domain_name }}"
+    aws_profile: "core"
+    wildcard: false
+  iam_role_name: "{{ _infra_name }}-{{ _env_type }}-ec2-basic"
+  health_check_path: "/user/login" # most of our sites are Drupal, the default path will result in a 503 in maintenance mode
+  health_check_success_codes: "200" # we cannot use 3XX codes as we cannot know if the application is working via a web server response
+  health_check_healthy_count: 2
+  health_check_unhealthy_count: 5
+  aws_profile: "{{ _aws_profile }}"
+  region: "{{ _aws_region }}"
+  vpc_name: "{{ _infra_name }}"
+  name: "{{ _aws_resource_name }}"
+  subnets:
+    - az: a
+      cidr_block: "{{ _aws_vpc_subnets_cidr_base }}.0/26"
+      public_subnet: "{{ _infra_name }}-{{ _env_type }}-a"
+    - az: b
+      cidr_block: "{{ _aws_vpc_subnets_cidr_base }}.64/26"
+      public_subnet: "{{ _infra_name }}-{{ _env_type }}-b"
+    - az: c
+      cidr_block: "{{ _aws_vpc_subnets_cidr_base }}.128/26"
+      public_subnet: "{{ _infra_name }}-{{ _env_type }}-c"
+  key_name: "{{ aws_provision_ec2_keypair.key_name }}"
+  state: present
+  tags: "{{ _aws_tags }}"
+  assign_instances_ipv6: false
+  encrypt_boot: true
+  ami_playbook_file: "{{ playbook_dir }}/ami.yml"
+  peering: []
+  efs: true
+  efs_encrypt: true
+  efs_backup: "{{ _infra_name }}-{{ _env_type }}"

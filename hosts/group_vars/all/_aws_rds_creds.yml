@@ -1,0 +1,5 @@
+---
+# Auto-generates and RDS username and password, and stashes the password in ce-provision's data directory
+_rds_creds:
+  master_username: "{{ _aws_resource_name | regex_replace('-', '') }}"
+  master_user_password: "{{ lookup('password', _ce_provision_data_dir + '/' + _aws_resource_name + '/rds-passphrase chars=ascii_lowercase,digits length=32') }}"

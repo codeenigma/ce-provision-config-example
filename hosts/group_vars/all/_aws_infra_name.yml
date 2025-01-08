@@ -1,0 +1,4 @@
+---
+ # If you have a single infra you can do this
+ # Otherwise, delete this file and pass in _infra_name via CLI or playbook
+_infra_name: acme

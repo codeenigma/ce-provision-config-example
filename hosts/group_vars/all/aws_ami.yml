@@ -1,0 +1,21 @@
+---
+aws_ami:
+  aws_profile: "{{ _aws_profile }}"
+  region: "{{ _aws_region }}"
+  instance_type: "c5.large"
+  ami_name: "{{ _aws_resource_name }}"
+  playbook_file: "{{ playbook_dir }}/ami.yml"
+  operation: ensure
+  encrypt_boot: true
+  groups:
+    - "all"
+    - "_{{ _aws_resource_name | regex_replace('-', '_') }}"
+    - "_{{ _infra_name | regex_replace('-', '_') }}"
+    - "_{{ _env_type | regex_replace('-', '_') }}"
+    - "_{{ _profile | regex_replace('-', '_') }}"
+  extra_vars:
+    - "_aws_resource_name: {{ _aws_resource_name }}"
+    - "_infra_name: {{ _infra_name }}"
+    - "_env_type: {{ _env_type }}"
+    - "_aws_region: {{ _aws_region }}"
+    - "_aws_profile: {{ _aws_profile }}"

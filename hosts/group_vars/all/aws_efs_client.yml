@@ -1,0 +1,13 @@
+---
+# Default EFS client configuration for EC2 instances
+aws_efs_client:
+  aws_profile: "{{ _aws_profile }}"
+  region: "{{ _aws_region }}"
+  # See https://docs.ansible.com/ansible/latest/modules/mount_module.html
+  mounts:
+    - path: "/home/{{ user_deploy.username }}/shared"
+      src: "{{ _aws_resource_name }}"
+      opts: "{{ _mount_opts }}" # see role defaults - https://github.com/codeenigma/ce-provision/blob/2.x/roles/debian/aws_efs_client/defaults/main.yml
+      state: "{{ _mount_state }}"
+      owner: "{{ user_deploy.username }}"
+      group: "{{ user_deploy.username }}"

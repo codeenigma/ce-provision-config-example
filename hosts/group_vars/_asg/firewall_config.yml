@@ -1,0 +1,8 @@
+---
+firewall_config:
+  rulesets:
+    - web_open
+    - common_web
+    - ssh_open
+    #- elasticache_memcached # see group_vars/all/firewall_config.yml
+    #- wazuh_outbound
