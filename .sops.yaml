@@ -1,0 +1,5 @@
+---
+creation_rules:
+  - key_groups:
+      - pgp:
+          - XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX # your PGP key fingerprints here as a YAML list

@@ -1,0 +1,8 @@
+---
+skip_list:
+  - '204'
+  - '301'
+  - '701'
+  - '306'
+  - command-instead-of-module
+  - no-jinja-nesting
