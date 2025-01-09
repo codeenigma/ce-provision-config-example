@@ -1,5 +1,7 @@
 ---
-# Default infra controller user, be sure to set the correct server hostname in the path to the SSH keys for new servers
+# Default infra controller user
+# You may need to set the correct server hostname in the path to the SSH keys for new servers
+# Depending on how it was built it may not be localhost
 user_provision:
   username: controller
   utility_username: controller
