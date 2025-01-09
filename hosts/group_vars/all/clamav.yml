@@ -1,0 +1,42 @@
+---
+# Settings for the Galaxy loaded clamav role
+clamav_daemon_configuration_changes:
+  - regexp: '^.*Example$'
+    state: absent
+  - regexp: '^.*LocalSocket .*$'
+    line: 'LocalSocket {{ clamav_daemon_localsocket }}'
+  - regexp: '^.*ConcurrentDatabaseReload .*$'
+    line: 'ConcurrentDatabaseReload false'
+
+# We don't typically want the daemon because it uses a lot of RAM - we'll do scheduled scans instead
+clamav_daemon_state: stopped
+clamav_daemon_enabled: false
+
+# ce-provision wrapper role defaults
+clamav:
+  scripts:
+    # scan the deploy user home directory daily
+    - location: /usr/local/clamav/script
+      name: clamscan_daily
+      exclude_directories: []
+      scan_location: "/home/{{ user_deploy.username}}/"
+      log_name: clamav_daily.log
+    # scan the entire system weekly
+    - location: /usr/local/clamav/script
+      name: clamscan_weekly
+      exclude_directories:
+        - /sys/
+      scan_location: /
+      log_name: clamav_weekly.log
+  # scheduled scans, set to an empty dictionary for no timers
+  timers:
+    - clamav_daily:
+        timer_command: /usr/local/clamav/script/clamscan_daily
+        timer_OnCalendar: "Mon..Sat *-*-* 0{{ range(0, 3) | random }}:{{ range(0, 59) | random }}:00"
+    - clamav_weekly:
+        timer_command: /usr/local/clamav/script/clamscan_weekly
+        timer_OnCalendar: "Sun *-*-* 0{{ range(0, 3) | random }}:{{ range(0, 59) | random }}:00"
+  send_mail: true
+  send_on_fail: true # Only sends emails on scan failure, will not email for successful scans.
+  report_recipient_email: sysadm@example.com
+  report_sender_email: sysadm@example.com

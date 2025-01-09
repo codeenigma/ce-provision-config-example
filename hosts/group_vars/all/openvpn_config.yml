@@ -1,0 +1,14 @@
+---
+openvpn_config:
+  install: false # regenerates the certs so we don't normally want this - set to true for first run at an individual config level
+  pam:
+    install: true
+  certs:
+    cn: "{{ _domain_name }}"
+    dn_mode: org # choices are org or cn_only
+    country: GB
+    province: Greater London
+    city: London
+    org: Acme
+    email: sysadm@acme.com
+    org_unit: VPN

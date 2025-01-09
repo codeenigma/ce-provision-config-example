@@ -1,0 +1,10 @@
+---
+# Default infra controller user, be sure to set the correct server hostname in the path to the SSH keys for new servers
+user_provision:
+  username: controller
+  utility_username: controller
+  utility_host: localhost
+  groups:
+    - bypass2fa
+  ssh_keys:
+    - "{{ lookup('file', '{{ _ce_provision_data_dir }}/controller.acme.come/home/controller/.ssh/id_ecdsa.pub') }}"

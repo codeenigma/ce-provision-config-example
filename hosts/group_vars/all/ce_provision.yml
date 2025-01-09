@@ -1,0 +1,11 @@
+---
+ce_provision:
+  own_repository: https://github.com/codeenigma/ce-provision.git
+  own_repository_branch: 2.x
+  # Once you have created your own config repo using this as a base, update this URL.
+  config_repository: https://github.com/codeenigma/ce-provision-config-example.git
+  config_repository_branch: 2.x
+  username: controller
+  local_dir: /home/controller/ce-provision
+  groups:
+    - bypass2fa

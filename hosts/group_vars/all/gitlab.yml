@@ -1,0 +1,9 @@
+---
+gitlab:
+  disable_signin: true
+  # Generates a random root password and stashes it in /tmp/passwordfile on the server
+  initial_root_password: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters,digits') }}"
+  # Uncomment if you intend to use a standalone Prometheus server
+  #prometheus: "false"
+  #node_exporter: "false"
+  #alertmanager: "false"

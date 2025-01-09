@@ -1,0 +1,5 @@
+---
+# AWS only, uncomment if you are using AWS and shipping logs to CloudWatch
+#nginx:
+#  log_stream_name: "{{ _aws_resource_name }} {instance_id}"
+#  log_group_prefix: "{{ _env_type }}-"

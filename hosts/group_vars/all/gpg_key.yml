@@ -1,0 +1,8 @@
+---
+gpg_key:
+  - username: deploy
+    publish: true
+    key_type: RSA
+    key_length: 4096
+    email: "deploy@{{ _domain_name }}"
+    expire: 0

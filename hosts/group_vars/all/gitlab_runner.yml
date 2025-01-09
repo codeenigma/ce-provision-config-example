@@ -1,0 +1,4 @@
+---
+# Disable placing an Ansible config by default
+gitlab_runner:
+  runners: []

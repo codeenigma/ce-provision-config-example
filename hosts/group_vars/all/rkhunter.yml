@@ -1,0 +1,32 @@
+---
+# Our typical rkhunter config
+rkhunter:
+  report_email_recipient: sysadm@example.com
+  warning_email_recipient: sysadm@example.com
+  os_package_manager: "DPKG"
+  scriptwhitelist:
+    - /bin/egrep
+    - /bin/fgrep
+    - /bin/which
+    - /usr/bin/groups
+    - /usr/bin/ldd
+    - /usr/sbin/adduser
+    - /usr/bin/which
+    - /usr/bin/egrep
+    - /usr/bin/fgrep
+  allowhiddendir:
+    - /etc/.java
+    - /dev/.udev
+    - /dev/.initramfs
+    - /tmp/.ce-deploy
+  allowhiddenfile:
+    - /etc/.etckeeper
+    - /dev/shm/.com.google.Chrome.*
+    - /etc/.resolv.conf.systemd-resolved.bak
+  allowdevfile:
+    - /dev/shm/network/ifstate
+    - /dev/shm/PostgreSQL*
+    - /dev/shm/dd_trace_shmem_*
+  portpathwhitelist:
+    - /usr/local/bin/prometheus:TCP:47018
+    - /usr/sbin/nslcd

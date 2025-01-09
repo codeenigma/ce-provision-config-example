@@ -1,0 +1,3 @@
+---
+sops:
+  version: 3.9.3 # see https://github.com/mozilla/sops/releases

@@ -1,0 +1,40 @@
+---
+# Typical SSHD config demanding SSH key and password
+sshd:
+  ChallengeResponseAuthentication: "yes"
+  AuthenticationMethods: publickey,keyboard-interactive
+  groups:
+    # Define a group that is allowed to use password authentication.
+    - name: nosshkeys
+      settings:
+        PasswordAuthentication: "yes"
+    # Define a group that is allowed to use password authentication and restricted to SFTP use.
+    - name: sftpusers
+      settings:
+        PasswordAuthentication: "yes"
+        AuthenticationMethods: "password"
+        ChrootDirectory: "%h/documents"
+        X11Forwarding: "no"
+        AllowTcpForwarding: "no"
+        ForceCommand: "internal-sftp"
+    # Define a group that is restricted to SFTP use.
+    - name: sftpkeyusers
+      settings:
+        PasswordAuthentication: "no"
+        AuthenticationMethods: "publickey"
+        ChrootDirectory: "%h/documents"
+        X11Forwarding: "no"
+        AllowTcpForwarding: "no"
+        ForceCommand: "internal-sftp"
+    # Define a group that can bypass 2FA and use key only (for deploy/provision/etc).
+    - name: bypass2fa
+      settings:
+        PasswordAuthentication: "no"
+        AuthenticationMethods: "publickey"
+  users:
+    # Allow users to bypass 2FA and use key only.
+    - names:
+        - git
+      settings:
+        PasswordAuthentication: "no"
+        AuthenticationMethods: publickey

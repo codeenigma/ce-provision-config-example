@@ -1,0 +1,6 @@
+---
+user_deploy:
+  username: deploy
+  utility_host: "localhost"
+  groups:
+    - bypass2fa
