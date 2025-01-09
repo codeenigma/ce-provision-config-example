@@ -33,12 +33,13 @@ firewall_config:
   # AWS rules
   # _aws_vpc_cidr_base will be set to whatever the CIDR base of your VPC is
   # These rules allow all internal traffic outbound from web servers to key services
-  elasticache_memcached:
-    firewall_additional_rules:
-      - "iptables -A OUTPUT -p tcp --dport 11211 -d {{ _aws_vpc_cidr_base }}.0.0/16 -j ACCEPT" # allow outbound internal traffic to memcached
-  elasticache_redis:
-    firewall_additional_rules:
-      - "iptables -A OUTPUT -p tcp --dport 6379 -d {{ _aws_vpc_cidr_base }}.0.0/16 -j ACCEPT" # allow outbound internal traffic to redis
-  rds_mysql:
-    firewall_additional_rules:
-      - "iptables -A OUTPUT -p tcp --dport 3306 -d {{ _aws_vpc_cidr_base }}.0.0/16 -j ACCEPT" # allow outbound internal traffic to mysql on RDS
+  # Uncomment if you have set _aws_vpc_cidr_base and you are using AWS
+  #elasticache_memcached:
+  #  firewall_additional_rules:
+  #    - "iptables -A OUTPUT -p tcp --dport 11211 -d {{ _aws_vpc_cidr_base }}.0.0/16 -j ACCEPT" # allow outbound internal traffic to memcached
+  #elasticache_redis:
+  #  firewall_additional_rules:
+  #    - "iptables -A OUTPUT -p tcp --dport 6379 -d {{ _aws_vpc_cidr_base }}.0.0/16 -j ACCEPT" # allow outbound internal traffic to redis
+  #rds_mysql:
+  #  firewall_additional_rules:
+  #    - "iptables -A OUTPUT -p tcp --dport 3306 -d {{ _aws_vpc_cidr_base }}.0.0/16 -j ACCEPT" # allow outbound internal traffic to mysql on RDS
