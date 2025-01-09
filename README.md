@@ -29,18 +29,31 @@ SOPS is loaded in by default, however to use it you will need to add the PGP key
 
 [The SOPS documentation is here.](https://github.com/getsops/sops/blob/main/README.rst)
 
-# Linked files
+# Files and directories
+Although ce-provision is fairly flexible, this is a list of supplied files and directories and what they are generally used for. It provides a model for potentially organising your Ansible configuration.
 
-## hosts
+## Directories
+These are the provided directories which are not linked into ce-provision.
+
+### plays
+This is a space where you can optionally keep playbooks that are unique to your organisation.
+
+### private
+This is where we recommend you keep any roles that are unique to your organisation, for example they might contain configurations you do not wish to share or they might be simply of no use to the wider product. For example, we keep roles for managing our LDAP directory server in this directory. It is automatically included in Ansible's roles path in the provided `ansible.cfg`.
+
+## Linked files
+These files are obligatory in the config repository and are linked into ce-provision in the required places to make Ansible function as expected.
+
+### hosts
 This will be symlinked to the `hosts` directory in the root of your Ansible installation.
 
-## files
+### files
 This will be symlinked to the `files` directory in the root of your Ansible installation.
 
-## templates
+### templates
 This will be symlinked to the `templates` directory in the root of your Ansible installation.
 
-## ansible.cfg
+### ansible.cfg
 This will be symlinked into the root of your Ansible installation.
 
 More information:
