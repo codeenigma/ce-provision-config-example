@@ -50,6 +50,8 @@ This will be symlinked to the `hosts` directory in the root of your Ansible inst
 ### files
 This will be symlinked to the `files` directory in the root of your Ansible installation.
 
+We have included a file called `galaxy-requirements.yml` which provides optional extra Ansible Galaxy roles and collections to be installed. You can alter this or remove it as you see fit.
+
 ### templates
 This will be symlinked to the `templates` directory in the root of your Ansible installation.
 
