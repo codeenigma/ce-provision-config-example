@@ -1,13 +1,9 @@
 ---
 # Default AWS VPC configuration
 aws_vpc:
-  aws_profile: "{{ _aws_profile }}"
-  region: "{{ _aws_region }}"
   name: "{{ _infra_name }}"
-  cidr_block: "{{ _aws_vpc_cidr_base }}.0.0/16"
-  state: present
   assign_instances_ipv6: false
-  security_groups: "{{ _global_security_groups }}"
+  security_groups: "{{ _all_security_groups }}" # override the _security_groups_defaults list with a new list including our custom groups
   tags:
     Name: "{{ _aws_resource_name | default(omit) }}"
     Profile: "{{ _profile | default(omit) }}"

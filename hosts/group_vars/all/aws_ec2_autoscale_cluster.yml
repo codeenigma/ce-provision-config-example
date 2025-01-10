@@ -1,7 +1,5 @@
 ---
 # Default AWS EC2 autoscaling group configuration
-# Do change the notification email address to get alerts!
-# Also change the Route 53 zone name, currently acme.com
 aws_ec2_autoscale_cluster:
   min_size: 1
   max_size: 2
@@ -73,27 +71,14 @@ aws_ec2_autoscale_cluster:
         comparison: "GreaterThanThreshold"
         period: 600
         evaluation_periods: 1
-    sns:
-      sns: true
-      name: "Notify-Email"
-      display_name: "" # Display name for the topic, for when the topic is owned by this AWS account.
-      delivery_policy_default_healthy_retry_policy_min_delay_target: 20
-      delivery_policy_default_healthy_retry_policy_max_delay_target: 20
-      delivery_policy_default_healthy_retry_policy_num_retries: 3
-      delivery_policy_default_healthy_retry_policy_num_max_delay_retries: 0
-      delivery_policy_default_healthy_retry_policy_num_no_delay_retries: 0
-      delivery_policy_default_healthy_retry_policy_num_min_delay_retries: 0
-      delivery_policy_default_healthy_retry_policy_backoff_function: "linear"
-      delivery_policy_disable_subscription_overrides: false
-      subscriptions:
-        - endpoint: "sysadm+{{ _infra_name }}@example.com"
-          protocol: "email"
+    sns: "{{ _aws_sns }}" # see hosts/group_vars/all/_aws_sns.yml
     backup: "{{ _infra_name }}-{{ _env_type }}"
   route_53:
-    zone: acme.com # Change me to your zone name or remove this block entirely
-    record: "{{ _domain_name }}"
-    aws_profile: "core"
-    wildcard: false
+    zone: "" # setting zone to empty skips Route 53 DNS handling
+  #  zone: acme.com # Change me to your zone name
+  #  record: "{{ _domain_name }}"
+  #  aws_profile: "core"
+  #  wildcard: false
   iam_role_name: "{{ _infra_name }}-{{ _env_type }}-ec2-basic"
   health_check_path: "/user/login" # most of our sites are Drupal, the default path will result in a 503 in maintenance mode
   health_check_success_codes: "200" # we cannot use 3XX codes as we cannot know if the application is working via a web server response

@@ -1,6 +1,5 @@
 ---
 # Default config for a standalone load balancer in AWS EC2
-# Do change the Route 53 zone name, currently acme.com
 aws_elb:
   elb_type: "alb"
   name: "{{ _infra_name }}-{{ _env_type }}-alb"
@@ -13,10 +12,11 @@ aws_elb:
   # Add an CNAM record tied to the ALB.
   # Set the zone to empty to skip.
   route_53:
-    zone: acme.com # Change me to your zone name or remove this block entirely
-    record: "{{ _domain_name }}"
-    aws_profile: "core"
-    wildcard: false
+    zone: "" # setting zone to empty skips Route 53 DNS handling
+    #zone: acme.com # Change me to your zone name
+    #record: "{{ _domain_name }}"
+    #aws_profile: "core"
+    #wildcard: false
   elb_security_groups:
     - "web_open"
   target_groups: # list of target groups
