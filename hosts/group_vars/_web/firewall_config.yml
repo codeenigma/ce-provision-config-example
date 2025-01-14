@@ -2,4 +2,5 @@
 firewall_config:
   rulesets:
     - web_open
-    - ssh_restricted # see group_vars/all/firewall_config.yml - set this rule up before using
+    - ssh_open # swap for ssh_restricted for additional security
+    #- ssh_restricted # see group_vars/all/firewall_config.yml - set this rule up before using

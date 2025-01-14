@@ -1,4 +1,5 @@
 ---
- # If you have a single infra you can do this
+ # If you have a single infra you can set the name here
+ # Just uncomment the variable below and set your infra name
  # Otherwise, delete this file and pass in _infra_name via CLI or playbook
-_infra_name: acme
+#_infra_name: acme

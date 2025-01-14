@@ -2,98 +2,33 @@
 # Default set of SGs for standalone EC2 machines
 _security_groups:
   - common_network
-  - ssh_restricted
-  - wazuh_outbound
+  - ssh_open # configure ssh_restricted with the correct IP address(es) and use instead
+  #- ssh_restricted # fix IP addresses before uncommenting these
+  #- wazuh_outbound
 
+# For convenience ce-provision ships with an optional list of common security groups called _security_groups_defaults.
+# In this example you will find a list of custom security groups called _my_security_groups_defaults.
+# This _all_security_groups variable is used in hosts/group_vars/all/aws_vpc.yml to create the security groups required.
+# It allows us to join the default groups with our custom groups and have them all created at once.
+_all_security_groups: "{{ _security_groups_defaults + _my_security_groups_defaults }}"
 
-# A list of reusable security groups.
-# They can be picked up individually, in the form:
-# security_groups:
-# - "{{ ce_security_groups.web_open }}"
-# - "{{ ce_security_groups.web_restricted }}"
+# My custom security groups.
+# This is a list of reusable security groups that are unique to this controller.
+_my_security_groups_defaults:
+  - "{{ _common_security_groups.prometheus_server }}"
+  #- "{{ _common_security_groups.ssh_restricted }}" # fix IP addresses before uncommenting
+  #- "{{ _common_security_groups.wazuh_outbound }}"
 
-# For convenience, ce_security_groups_defaults below groups the most common ones.
-
-ce_security_groups:
-  common_network:
-    name: common_network
-    description: Common network access configuration for all servers
-    rules:
-      - proto: icmp
-        from_port: 8 # ICMP type (8 is IPv4 echo)
-        to_port: -1 # ICMP subtype (-1 for any)
-        cidr_ip: 0.0.0.0/0
-        rule_desc: Allow ICMP IPv4 ping
-      - proto: icmp
-        from_port: 128 # ICMP type (128 is IPv6 echo)
-        to_port: -1 # ICMP subtype (-1 for any)
-        cidr_ipv6: "::/0"
-        rule_desc: Allow ICMP IPv6 ping
-      - proto: tcp
-        cidr_ip: "{{ _aws_vpc_cidr_base }}.0.0/16"
-        ports:
-          - 0-65535
-        rule_desc: Allow all tcp traffic on internal network
-      - proto: udp
-        cidr_ip: "{{ _aws_vpc_cidr_base }}.0.0/16"
-        ports:
-          - 0-65535
-        rule_desc: Allow all udp traffic on internal network
-    rules_egress:
-      - proto: tcp
-        cidr_ip: 0.0.0.0/0
-        ports:
-          - 1-1024
-          - 2049
-        rule_desc: Allow ports 1-1024 and 2049 for NFS as standard
-      - proto: udp
-        cidr_ip: 0.0.0.0/0
-        ports:
-          - 1-1024
-          - 2049
-        rule_desc: Allow ports 1-1024 and 2049 for NFS as standard
-  web_open:
-    name: web_open
-    description: Allow all incoming traffic on ports 80 and 443 (for LetsEncrypt)
-    rules:
-      - proto: tcp
-        ports:
-          - 80
-          - 443
-        cidr_ip: 0.0.0.0/0
-        rule_desc: Allow all incoming traffic on ports 80 and 443 (for LetsEncrypt)
-  ssh_open:
-    name: ssh_open
-    description: Allow all incoming traffic on port 22.
+_my_security_groups:
+  ssh_restricted:
+    name: ssh_restricted
+    description: Allow specific incoming traffic on port 22.
     rules:
       - proto: tcp
         ports:
           - 22
-        cidr_ip: 0.0.0.0/0
-        rule_desc: Allow all incoming traffic on port 22.
-  ossec:
-    name: ossec
-    description: Allow all incoming traffic on ports 1514/udp and 1515/tcp
-    rules:
-      - proto: udp
-        ports:
-          - 1514
-        cidr_ip: 0.0.0.0/0
-        rule_desc: Allow all incoming traffic on port 1514/udp
-      - proto: tcp
-        ports:
-          - 1515
-        cidr_ip: 0.0.0.0/0
-        rule_desc: Allow all incoming traffic on port 1515/tcp
-  openvpn:
-    name: openvpn
-    description: Allow all incoming traffic on port 1194/udp
-    rules:
-      - proto: udp
-        ports:
-          - 1194
-        cidr_ip: 0.0.0.0/0
-        rule_desc: Allow all incoming traffic on port 1194/udp
+        cidr_ip: "X.X.X.X/32"
+        rule_desc: Allow incoming traffic on port 22 from this address.
   prometheus_server:
     name: prometheus_server
     description: Allow outbound traffic from Prometheus to scrapers.
@@ -115,11 +50,3 @@ ce_security_groups:
           - 55000 # wazuh dashboard
         cidr_ip: "X.X.X.X/32" # Change this to Wazuh server IP
         rule_desc: "Allow outbound traffic to Wazuh for vulnerability monitoring."
-# All common groups.
-ce_security_groups_defaults:
-  - "{{ ce_security_groups.common_network }}"
-  - "{{ ce_security_groups.web_open }}"
-  - "{{ ce_security_groups.ssh_open }}"
-  - "{{ ce_security_groups.openvpn }}"
-  - "{{ ce_security_groups.prometheus_server }}"
-  - "{{ ce_security_groups.wazuh_outbound }}"
