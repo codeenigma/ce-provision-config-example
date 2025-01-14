@@ -1,0 +1,4 @@
+---
+user_root:
+  # We will not delete the "admin" user on the controller because it might be in use or this might not be an AWS machine.
+  delete_admin: false
