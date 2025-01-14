@@ -1,5 +1,6 @@
 ---
 ce_deploy:
+  aws_support: true # set to false to skip installing AWS requirements
   own_repository: https://github.com/codeenigma/ce-deploy.git
   own_repository_branch: 1.x
   username: deploy
