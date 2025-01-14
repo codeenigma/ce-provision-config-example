@@ -1,0 +1,79 @@
+---
+# Pre-filled vars for the run pipeline page
+variables:
+  ENV:
+    value: "util"
+    options:
+      - "util"
+      - "dev"
+      - "stage"
+      - "prod"
+    description: "Defaults to building a controller server in the util environment of your infra."
+  RESOURCE:
+    value: ""
+    description: "For building your controller this should just be the fully qualified domain name, e.g. controller.acme.com. Make sure the host is defined in hosts.yml before running a build."
+  REGION:
+    value: "eu-west-2"
+    options:
+      - "eu-west-2"
+    description: "AWS region to pass to Ansible when building an individual host."
+  CE_PROVISION_BRANCH:
+    value: "2.x"
+    options:
+      - "1.x"
+      - "2.x"
+      - "devel-1.x"
+      - "devel-2.x"
+    description: "Branch of ce-provision/config to use, change to 'devel' versions to use bleeding edge functionality."
+  CE_PROVISION_CONFIG_BRANCH:
+    value: "2.x"
+    options:
+      - "1.x"
+      - "2.x"
+      - "devel-1.x"
+      - "devel-2.x"
+    description: "Branch of ce-provision-config to use, change to 'devel' versions to use bleeding edge functionality."
+  EXTRA_PARAMS:
+    value: "--force --python-interpreter /home/controller/ce-python/bin/python3"
+    description: "Extra parameters to pass to ce-provision on a single build, e.g. --verbose or --force"
+  BASH_VARS:
+    value: ""
+    description: "Bash variables to set prior to execution of a single build, e.g. ANSIBLE_KEEP_REMOTE_FILES=1 (leave a trailing space!)"
+
+# Set pretty pipeline names
+workflow:
+  name: '$PIPELINE_NAME'
+  rules:
+    - if: '$ENV == "none"'
+      variables:
+        PIPELINE_NAME: "lint"
+    - if: '$RESOURCE =~ /^./'
+      variables:
+        PIPELINE_NAME: "$RESOURCE | $CI_COMMIT_TITLE"
+
+# CI stages available
+stages:
+  - test
+  - apply
+
+# Run yamllint on every commit
+lint:
+  stage: test
+  script:
+    - |
+      for f in /etc/profile.d/*; do
+        . "$f"
+      done
+    - /home/controller/ce-python/bin/yamllint "$CI_PROJECT_DIR"
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "web"
+
+# Build a controller server
+apply_controller:
+  stage: apply
+  script:
+    - chown -R controller:controller $CI_PROJECT_DIR
+    - |
+      sudo -u controller $BASH_VARS/bin/sh /home/controller/ce-provision/scripts/provision.sh --repo core --ansible-extra-vars "{_aws_region: $REGION, _env_type: util, _provision_host: $RESOURCE, _domain_name: $RESOURCE}" --workspace "$CI_PROJECT_DIR" --branch apply --playbook /home/controller/ce-provision/plays/controller/provision.yml --absolute-playbook-path --own-branch $CE_PROVISION_BRANCH --config-branch $CE_PROVISION_CONFIG_BRANCH --boto-profile core $EXTRA_PARAMS
+  rules:
+    - if: '$RESOURCE =~ /^./'

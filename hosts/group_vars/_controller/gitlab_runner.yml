@@ -6,3 +6,4 @@
 gitlab_runner:
   username: "{{ ce_provision.username }}"
   runner_workingdir: "/home/{{ ce_provision.username }}/build"
+  restart: false # if we restart the shell runner while building ourself it will all go wrong!
