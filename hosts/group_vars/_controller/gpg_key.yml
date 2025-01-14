@@ -1,0 +1,8 @@
+---
+gpg_key:
+  - username: "{{ ce_provision.username }}"
+    publish: true
+    key_type: RSA
+    key_length: 4096
+    email: "{{ ce_provision.username }}@{{ _domain_name }}"
+    expire: 0
