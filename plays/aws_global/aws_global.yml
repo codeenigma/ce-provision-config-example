@@ -1,0 +1,14 @@
+---
+# Global infra setup.
+# In ce-provision-config instead of ce-provision as there is no overarching default.
+# By default this playbook does nothing, but you can use it to configure anything that applies to all accounts.
+# Examples would be SAML SSO, AWS CloudTrail configuration, etc.
+- hosts: localhost
+  connection: local
+  become: false
+  vars:
+    _profile: core
+    _env_type: core
+  roles:
+    - _init
+    - _exit
