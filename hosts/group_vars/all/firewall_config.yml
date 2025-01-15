@@ -1,8 +1,9 @@
 ---
 firewall_config:
+  # These are the default rulesets applied to new servers, see the ce-provision role
   rulesets:
-    - common_web
-    - ssh_open
+    - web_open # allow web traffic for LetsEncrypt
+    - ssh_open # allow SSH access
     - common_network # rule always needs to be last so the DROP rules in the OUTPUT chain get applied at the end
 
   # If you have a VPN or a jump box, you might want to restrict SSH to that address
