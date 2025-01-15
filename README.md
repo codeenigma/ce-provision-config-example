@@ -38,7 +38,7 @@ These are the provided directories which are not linked into ce-provision.
 ### plays
 This is a space where you can optionally keep playbooks that are unique to your organisation.
 
-### private
+### roles
 This is where we recommend you keep any roles that are unique to your organisation, for example they might contain configurations you do not wish to share or they might be simply of no use to the wider product. For example, we keep roles for managing our LDAP directory server in this directory. It is automatically included in Ansible's roles path in the provided `ansible.cfg`.
 
 ## Linked files
