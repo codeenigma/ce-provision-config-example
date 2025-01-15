@@ -1,5 +1,5 @@
 ---
-# Be sure to update the IP address list at the end
+# Creates a default AWS ACL required by WAF and CloudFront
 aws_acl:
   - name: "{{ _infra_name }}_main_acl"
     description: "ACL rules from ce-provision-config"
@@ -7,12 +7,5 @@ aws_acl:
     region: "us-east-1"
     tags: "{{ _aws_tags }}"
     recreate: true
-    rules:
-      ip_sets:
-        - rule_name: "Allowed-IPs-rule"
-          set_name: "Allowed-IPs-set"
-          description: "List of IPs from our VPNs - Ansible managed"
-          action: allow
-          priority: 1
-          list:
-            - X.X.X.X/32 # Change this to a list of your permitted IP addresses
+# For information on default rulesets and configurations avaiable see the docs:
+# https://codeenigma.github.io/ce-provision-docs/2.x/roles/aws/aws_acl/
