@@ -1,5 +1,7 @@
 # Docs: https://docs.ansible.com/ansible/latest/collections/amazon/aws/aws_ec2_inventory.html
 
+# To use, be sure to load the aws_ec2 inventory plugin using the example in ansible.cfg.
+
 # Code Enigma standard config
 #plugin: amazon.aws.aws_ec2
 #filters:
