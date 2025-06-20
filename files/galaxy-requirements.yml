@@ -7,5 +7,5 @@ roles:
   - name: cloudalchemy.grafana
   - name: robertdebock.logrotate
 collections:
-  - name: community.grafana
+  - name: grafana.grafana
   - name: prometheus.prometheus
